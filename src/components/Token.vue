@@ -1,77 +1,112 @@
 <template>
 	<section>
+		<h1>Spotify Token Generator</h1>
+
+		<hr />
+
 		<form submit.prevent>
-			<fieldset>
-				<legend>Spotify</legend>
+			<h2>Spotify</h2>
+			<div class="form-group row">
+				<label for="clientID" class="col-sm-2 col-form-label">Client ID </label>
+				<div class="col-sm-10">
+					<input
+						v-model="clientID"
+						class="form-control"
+						type="text"
+						id="clientID"
+						placeholder="Spotify Client ID"
+					/>
+				</div>
+			</div>
 
-				<div>
-					<p>Create an app at https://developer.spotify.com/dashboard</p>
+			<div class="form-group row">
+				<label for="clientSecret" class="col-sm-2 col-form-label">Client Secret </label>
+				<div class="col-sm-10">
+					<input
+						v-model="clientSecret"
+						class="form-control"
+						type="text"
+						id="clientSecret"
+						placeholder="Spotify Client Secret"
+					/>
 				</div>
-				<div>
-					<p>
-						Note: The Spotify client secret is only used client side and is not used by this
-						website except to generate the curl string which you execute manually.
-					</p>
-				</div>
-				<div>
-					<label for="clientID"
-						>Client ID <input v-model="clientID" type="text" id="clientID"
-					/></label>
-				</div>
-				<div>
-					<label for="clientSecret"
-						>Client Secret <input v-model="clientSecret" type="text" id="clientSecret"
-					/></label>
-				</div>
-			</fieldset>
+			</div>
 
-			<fieldset>
-				<legend>Step 1</legend>
-				<div>
-					<p>
-						Set the Redirect URI (edit settings button) on your Spotify app to a url you control.
-					</p>
-				</div>
+			<div>
+				<p class="alert alert-warning">
+					<strong>Note:</strong> The Spotify client secret is only used client side and is not used
+					by this website except to generate the <strong>curl</strong> string which you execute
+					manually.
+				</p>
+			</div>
 
-				<div>
-					<label for="redirectURI"
-						>Redirect URI <input v-model="redirectURI" type="text" id="redirectURI"
-					/></label>
-				</div>
-				<div>
-					<label for="requestScope"
-						>Scope <input v-model="requestScope" type="text" id="requestScope"
-					/></label>
-				</div>
-				<div>
-					<p>
-						Open the following link. Authorise using your Spotify account.
-					</p>
-				</div>
-				<div v-if="codeURL"><a :href="codeURL" target="_blank">Open in tab</a></div>
-				<div v-if="!codeURL">Please make sure above fields are complete.</div>
-				<div>
-					<p>
-						Copy full URL from redirected page into the following field.
-					</p>
-				</div>
-				<div>
-					<textarea rows="4" cols="80" v-model="redirectResult" type="text" id="redirectResult" />
-				</div>
-				<div v-if="accessCode">{{ accessCode }}</div>
-				<div v-if="!accessCode">No access code.</div>
-			</fieldset>
+			<!-- Step 1 -->
+			<hr />
 
-			<fieldset>
-				<legend>Step 2</legend>
+			<h2>Step 1</h2>
+			<div class="alert alert-dark" role="alert">
+				Set the Redirect URI (edit settings button) on your Spotify app to a url you control.
+			</div>
+
+			<div class="form-group row">
+				<label for="redirectURI" class="col-sm-2 col-form-label">Redirect URI </label>
+				<div class="col-sm-10">
+					<input
+						v-model="redirectURI"
+						class="form-control"
+						type="text"
+						id="redirectURI"
+						placeholder="Redirect URL"
+					/>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label for="requestScope" class="col-sm-2 col-form-label">Scope</label>
+				<div class="col-sm-10">
+					<input v-model="requestScope" class="form-control" type="text" id="requestScope" />
+				</div>
+			</div>
+
+			<div class="alert alert-success" role="alert">
+				Open the following link. Authorise using your Spotify account.
+			</div>
+
+			<div v-if="codeURL">
+				<a :href="codeURL" target="_blank">{{ codeURL }}</a>
+			</div>
+			<div v-if="!codeURL">Please make sure above fields are complete.</div>
+
+			<hr />
+
+			<div class="form-group row">
+				<label for="redirectResult" class="col-sm-2 col-form-label"
+					>window.location from Redirect URI</label
+				>
+				<div class="col-sm-10">
+					<textarea class="form-control" v-model="redirectResult" type="text" id="redirectResult" />
+				</div>
+			</div>
+
+			<hr />
+
+			<!-- Step 2 -->
+
+			<div>
+				<h2>Step 2</h2>
 				<div><p>Copy and paste the following into a terminal window.</p></div>
-				<pre>{{ curl }}</pre>
+				<samp>{{ curl }}</samp>
 				<hr />
-				<div><p>Paste the results here.</p></div>
-				<div></div>
-				<textarea rows="7" cols="80" v-model="curlResult" type="text" id="curlResult" />
+				<div class="form-group row">
+					<label for="curlResult" class="col-sm-2 col-form-label">Curl results</label>
+					<div class="col-sm-10">
+						<textarea class="form-control" v-model="curlResult" type="text" id="curlResult" />
+					</div>
+				</div>
+
 				<hr />
-				<div>
+
+				<div v-if="curlResultObject">
 					<dl>
 						<dt>Access Token</dt>
 						<dd>{{ curlResultObject.access_token }}</dd>
@@ -80,10 +115,15 @@
 						<dt>Scope</dt>
 						<dd>{{ curlResultObject.scope }}</dd>
 					</dl>
+					<hr />
 				</div>
-				<hr />
-				<pre>{{ codeSnippet }}</pre>
-			</fieldset>
+
+				<div v-if="curlResultObject">
+					<h3>Sample Code</h3>
+					<samp>{{ codeSnippet }}</samp>
+					<hr />
+				</div>
+			</div>
 		</form>
 	</section>
 </template>
@@ -95,14 +135,12 @@ import queryString from 'query-string';
 export default {
 	data() {
 		return {
-			clientID: 'a7aeab5447fb4b86b8d4a628a033723a',
-			clientSecret: '017964e16b0a4737869c8693d261b0db',
+			clientID: null,
+			clientSecret: null,
 			requestScope: 'user-read-email user-read-private',
-			redirectURI: 'https://defmech.com',
-			redirectResult:
-				'https://defmech.com/?code=AQAFtkpjQa3cAC07z-jX3mCiE3846U58AeMCAvV-fl_4h6otZO9B8SlbgQSM6C-6Ter-Dbubqp6vgziV1PuIhaImKsrOkqWsR2fcOQdVRCaW3PHf_D32nx-2H0BzRRvfKwjbgWhniuHbVbzkfDlTnVpETCGwtfrIg5OutYQUlviGGx1kI8N30K4Cmr-Xm1q33SXAtlA8PoRRp7k',
-			curlResult:
-				'{"access_token":"BQB0PtcVwDsKDZsGoRIAF0GtDhrYzzOdu-I8Zk6TeWW34TPBwuA7QPMRlpEHUFOxAEkZ4Nmrlz7eLZA1VFAz3i4cppxgBb_-JpEBRWRxjpuKv6E0EezLUNhaNxcuE-Sdme-xgSZdZ9EY76qiyJu2nnr8YQ","token_type":"Bearer","expires_in":3600,"refresh_token":"AQCliww41rzpTCQAa_bsOfCq32MuLRQN6gfjmMklfCEQZUeouD4dpVkfMr8FLKtv_ZQvd0Mh5EPR0BLhGZpAly0EYRssKzqASVkkUzAgvhpAjrAX9fII_uHags4fQpHmm-c","scope":"user-read-email user-read-private"}%',
+			redirectURI: null,
+			redirectResult: null,
+			curlResult: null,
 		};
 	},
 	computed: {
@@ -127,10 +165,18 @@ export default {
 		},
 
 		curl() {
+			if (!this.accessCode) {
+				return null;
+			}
+
 			return `curl -H "Authorization: Basic ${this.encodedAuth}" -d grant_type=authorization_code -d code=${this.accessCode} -d redirect_uri=${this.urlEncodedRedirectURI} https://accounts.spotify.com/api/token`;
 		},
 
 		curlResultObject() {
+			if (!this.curlResult) {
+				return null;
+			}
+
 			let result = this.curlResult;
 
 			// Strip off the end charcter if it's a percent sign
@@ -141,6 +187,10 @@ export default {
 			return JSON.parse(result);
 		},
 		accessCode() {
+			if (!this.redirectResult) {
+				return null;
+			}
+
 			const parsed = queryString.parse(this.redirectResult.replace(`${this.redirectURI}/?`, ''));
 
 			const { code } = parsed;
